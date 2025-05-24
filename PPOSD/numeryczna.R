@@ -1,17 +1,17 @@
 library(dplyr)
 library(lubridate)
 
-# 1. Wczytanie danych
+
 
 df <- read.csv('dane_z_chmurami.csv', stringsAsFactors = FALSE)
 
-# 2. Wektoryzacja
+
 df <- df[ order(df[["Height..m."]]), ]
 heights  <- df$`Height..m.`
 temps     <- df$`Temperature...C.`
 humidity  <- df$`Humidity...`
 
-# 3. Punkt rosy
+
 dew_point <- function(T, RH) {
   a <- 17.27
   b <- 237.7
@@ -19,20 +19,18 @@ dew_point <- function(T, RH) {
   (b * alpha) / (a - alpha)
 }
 
-# 4. Parametry początkowe
 step   <- 100   # krok [m]
 x      <- 0     # start na 0 m
-# temperatura cząstki = temperatura otoczenia na 0 m
+
 T_part <- temps[which(heights == x)]
 RH_val <- humidity[which(heights == x)]
 dew    <- dew_point(T_part, RH_val)
 
-# 5. Szukanie podstawy chmury
 while (T_part > dew) {
   x <- x + step
   T_part <- T_part - 1   # adiabatyczny spadek o 1 °C na 100 m
   
-  # pobierz warunki na nowej wysokości (ew. interpoluj)
+
   if (x %in% heights) {
     idx   <- which(heights == x)
     T_env <- temps[idx]
@@ -48,8 +46,7 @@ while (T_part > dew) {
 cloud_base <- x
 cat(sprintf("Podstawa chmury: %d m\n", cloud_base))
 
-# 6. Szukanie wierzchołka chmury
-#    w chmurze spadek 0.6 °C na 100 m
+
 T_part <- dew
 x       <- cloud_base
 
@@ -71,11 +68,11 @@ repeat {
 
 cat(sprintf("Wierzchołek chmury: %d m\n", cloud_top))
 
-#Tabelka na dane chmurkowe
+
 dfp <- data.frame(cloud_base, cloud_top, H)
 dfp
 
-#modelowanie opadów
+
 sigmoid <- function(x) 1 / (1 + exp(-x))
 
 
@@ -87,12 +84,11 @@ rain_deterministic <- function(dfp,
                                  p_thr = 0.5             # próg klasyfikacji
                                )) {
   
- 
-  # prawdopodobieństwo opadów
+
   z <- with(dfp, pars$a0 + pars$a1 * H)   # H zakładamy w [km] już w dfp
   dfp$P_rain <- sigmoid(z)                # dopisujemy do ramki danych
   
-  # intensywność opadów - R
+
   dfp$R <- with(dfp, ifelse(
     (H > pars$H0) & (P_rain > pars$p_thr),
     pars$b0 * (H - pars$H0) ^ pars$b1,
@@ -108,7 +104,7 @@ if (interactive()) {
   print(result[, c("cloud_base", "cloud_top", "H", "P_rain", "R")], digits = 3)
 }
 
-# 1. Wczytaj profil startowy z pliku CSV
+
 df <- read.csv('dane_z_chmurami.csv', stringsAsFactors = FALSE)
 df <- df[order(df[["Height..m."]]), ]
 heights  <- df$`Height..m.`
@@ -121,7 +117,6 @@ profile_now <- data.frame(
   hum    = humidity
 )
 
-# 2.Rosa
 dew_point <- function(T, RH) {
   a <- 17.27
   b <- 237.7
@@ -129,7 +124,7 @@ dew_point <- function(T, RH) {
   (b * alpha) / (a - alpha)
 }
 
-# 3. Trendy dziennej zmiany temperatury i wilgotności 
+
 get_trend <- function(hour_utc) {
   if (hour_utc %in% c(0, 3, 6))      return(list(dT = 2/12, dH = -10/12))
   else if (hour_utc %in% c(9, 12, 15)) return(list(dT = 1/12, dH = -10/12))
@@ -137,7 +132,7 @@ get_trend <- function(hour_utc) {
   else                                 return(list(dT = 0, dH = 0))
 }
 
-# 4. Funkcja analizy chmurowej (podstawa/wierzchołek/H)
+
 cloud_profile_analysis <- function(profile) {
   step <- 100
   x <- 0
@@ -189,7 +184,7 @@ cloud_profile_analysis <- function(profile) {
   data.frame(cloud_base=cloud_base, cloud_top=cloud_top, H=H)
 }
 
-# 5. Funkcja sigmoid i model opadu
+
 sigmoid <- function(x) 1 / (1 + exp(-x))
 
 rain_deterministic <- function(dfp,
@@ -209,12 +204,11 @@ rain_deterministic <- function(dfp,
   return(dfp)
 }
 
-# 6. Parametry startowe prognozy
+
 start_datetime <- as.POSIXct(now(), tz="UTC")  # lub podaj konkretną godzinę
 start_hour     <- hour(start_datetime)
 lead_hours     <- c(3, 6, 9, 12)
 
-# 7. Dla każdej godziny prognozy: licz chmury i opad
 results <- data.frame()
 for (lead in lead_hours) {
   future_time <- start_datetime + hours(lead)
@@ -231,18 +225,17 @@ for (lead in lead_hours) {
   chmura$lead_hours       <- lead
   chmura$godzina_prognozy <- hour(future_time)
   
-  # Opad i prawdopodobieństwo
+
   chmura <- rain_deterministic(chmura)
   
   results <- rbind(results, chmura)
 }
 
-# 8. Tabela
+
 print(results[, c("godzina_pomiaru", "lead_hours", "godzina_prognozy",
                   "cloud_base", "cloud_top", "H", "P_rain", "R")], digits=3)
 
 
-# 1. Czas
 current_time <- as.POSIXct(now(), tz="UTC")
 rok     <- as.integer(format(current_time, "%Y"))
 miesiac <- as.integer(format(current_time, "%m"))
@@ -250,13 +243,11 @@ dzien   <- as.integer(format(current_time, "%d"))
 godzina <- as.integer(format(current_time, "%H"))
 minuta  <- as.integer(format(current_time, "%M"))
 
-# 2. Prognoza godzinowa
 p3  <- results$R[results$lead_hours == 3]
 p6  <- results$R[results$lead_hours == 6]
 p9  <- results$R[results$lead_hours == 9]
 p12 <- results$R[results$lead_hours == 12]
 
-# 3. Format tabelki
 tabelka <- data.frame(
   rok = rok,
   miesiac = miesiac,
