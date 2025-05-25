@@ -2,6 +2,7 @@
 
 Witamy w AtmoDrop – systemie prognozowania opadów opartym na pionowych profilach atmosferycznych.
 Projekt ma na celu porównanie dokładności lokalnych prognoz opadowych, generowanych na podstawie danych ze stacji pomiarowej, z wynikami ogólnych modeli numerycznych.
+Znajdziesz tutaj wszystkie pliki wypracowane przez zespół projektu AtmoDrop podczas SpaceSheld.
 
 Repozytorium zawiera: <br>
 🔵 Podstawowe pliki: schematy ideowe, prezentacja, kosztorys. (folder basic)<br>
