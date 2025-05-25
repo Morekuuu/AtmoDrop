@@ -1,4 +1,5 @@
-# AtmoDrop <br> kropla w morzu potrzeb współczesnego rolnictwa
+# AtmoDrop
+kropla w morzu potrzeb współczesnego rolnictwa
 
 Witamy w AtmoDrop – systemie prognozowania opadów opartym na pionowych profilach atmosferycznych.
 Projekt ma na celu porównanie dokładności lokalnych prognoz opadowych, generowanych na podstawie danych ze stacji pomiarowej, z wynikami ogólnych modeli numerycznych.
