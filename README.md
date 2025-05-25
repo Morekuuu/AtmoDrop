@@ -10,4 +10,7 @@ Repozytorium zawiera: <br>
 🔵 Dane na podstawie których tworzyliśmy modele uczenia maszynowego (folder generatorml)<br>
 🔵 Nasze ML potrzebne do programu analizujące wyniki z przewidywań stacji oraz ogólnych modeli numerycznych (folder MUM)<br>
 🔵 Program służący przewidywania opadów na podstawie stacji i UAV (folder PPOSD)<br>
-🔵 
+🔵 Program z wstepnym inteferjsem panelu sterowania. (folder control panel)<br>
+🔵 Profesjonalnie zaprojektowany przez nas hardware dla pojemnika pomiarowego UAV (folder electronics schematic)<br>
+
+Przetestowaliśmy cały proces cyfrowy – od wykonania pomiarów, poprzez przesyłanie danych za pomocą API na serwer z systemem Ubuntu, aż po ich automatyczne odbieranie i przetwarzanie przez uruchomione na serwerze programy, działające bez udziału operatora.
